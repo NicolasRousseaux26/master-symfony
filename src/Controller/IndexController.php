@@ -13,6 +13,7 @@ class IndexController extends AbstractController
      */
     public function homepage()
     {
+
         $product = new Product();
         $product->setName("iPhone");
         $product->setDescription("Mon produit");
@@ -21,7 +22,7 @@ class IndexController extends AbstractController
         //persist est le fait d'inserer/modiffier dans la pabase
         $entityManager->persist($product);
         // flush execute la requete
-        $entityManager->flush();
+        // $entityManager->flush();
 
         return $this->render('index/homepage.html.twig');
     }
