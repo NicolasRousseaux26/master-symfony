@@ -1,0 +1,25 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+<div class="d-flex justify-content-center mt-5">
+    {% for product in products %}
+
+        <div class="card ml-2 mr-2" style="width: 18rem;">
+            <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">Description: {{ product.description }}</p>
+                <p class="card-text">Prix: {{ product.price / 100 }}</p>
+                <a href="{{ path('product_show', { id: product.id }) }}" class="btn btn-secondary d-flex justify-content-center mb-2">Voir le produit</a>
+                <a href="{{ path('product_udapte', { id: product.id }) }}" class="btn btn-success ml-4">Modifier</a>
+                <!--<a href="{{ path('product_deleted', { id: product.id }) }}" class="btn btn-warning">supprimer</a>-->
+                <form action="{{ path('product_deleted', { id: product.id }) }}" method="post" class="d-inline">
+                    <input type="hidden" name="token" value="{{ csrf_token('delete') }}">
+                    <button class="btn btn-danger">remove</button>
+                </form>           
+            </div>
+        </div>
+
+    {% endfor %}
+</div>
+{% endblock %}
