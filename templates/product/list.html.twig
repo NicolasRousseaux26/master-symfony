@@ -1,10 +1,10 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-<div class="d-flex justify-content-center mt-5">
+<div class="row d-flex justify-content-between mt-5">
     {% for product in products %}
 
-        <div class="card ml-2 mr-2" style="width: 18rem;">
+        <div class=" card col-md-3 ml-2 mr-2 mt-2 " style="width: 18rem;">
             <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
             <div class="card-body">
                 <h5 class="card-title">{{ product.name }}</h5>
