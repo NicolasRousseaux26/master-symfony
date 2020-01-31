@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Mapping\OrderBy;
 
 /**
  * @method Product|null find($id, $lockMode = null, $lockVersion = null)
@@ -18,6 +19,47 @@ class ProductRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Product::class);
     }
+
+    /**
+     * Permet de recupéré les produits plus chére qu'un certain montant
+     */
+    public function findAllGreatherThanPrice($price): array
+    {
+        // SELECT * FROM product WHERE price > 500
+
+        // SELECT id, name, description, slug FROM product p 
+        // WHERE p.proce > 50000
+        // ORDER BY p.price ASC
+        // LIMIT 0, 4
+        $queryBuilder = $this->createQueryBuilder('p')
+            ->where('p.price > :price')
+            ->setParameter('price', $price * 100)
+            ->orderBy('p.price', 'ASC')
+            ->getQuery();
+
+        return $queryBuilder->getResult();
+    }
+
+    /**
+     * Permet de recupérer le produit le plus chér qu'un certain monyent
+     */
+    public function findOneGreaterThanPrice($price): ?Product
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+        ->where('p.price > :price')
+        ->setParameter('price', $price * 100)
+        ->orderBy('p.price', 'ASC')
+        ->getQuery();
+
+        return $queryBuilder->setMaxResults(1)->getOneOrNullResult();
+    }
+
+
+
+
+
+
+
 
     // /**
     //  * @return Product[] Returns an array of Product objects

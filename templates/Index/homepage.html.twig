@@ -1,5 +1,35 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Bienvenue sur mon site</h1>
+    <h1 class="text-center">Bienvenue sur mon site</h1>
+
+    <h2> Nos produits les plus vendus</h2>
+
+    <div class="row d-flex justify-content-between mt-5">
+    {% for product in products %}
+
+        <div class=" card col-md-3 ml-2 mr-2 mt-2 " style="width: 18rem;">
+            <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">Description: {{ product.description }}</p>
+                <p class="card-text">Prix: {{ product.price / 100 }}€</p>
+                <a href="{{ path('product_show', {slug: favorite_product.slug}) }}"class="btn btn-primary">voir</a> 
+            </div>
+        </div>
+
+    {% endfor %}
+    </div>
+
+    <h2>Produit favori :</h2>
+    <div class=" card col-md-3 ml-2 mr-2 mt-2 " style="width: 18rem;">
+            <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">{{ favorite_product.name }}</h5>
+                <p class="card-text">Description: {{ favorite_product.description }}</p>
+                <p class="card-text">Prix: {{ favorite_product.price /100 }}€</p>
+                <a href="{{ path('product_show', {slug: favorite_product.slug}) }}"class="btn btn-primary">voir</a>                        
+            </div>
+        </div>
+
 {% endblock %}

@@ -8,13 +8,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProductController extends AbstractController
 {
     /**
      * @Route("/product", name="product_create")
      */
-    public function create(Request $request)
+    public function create(Request $request, SluggerInterface $slugger)
     {
         $product = new Product();
         // on crée un formulaire avec 2 paramétre la class et l'objet a la db
@@ -22,6 +23,8 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // je génére le slug a la création de produit
+            $product->setSlug($slugger->slug($product->getName())->lower());
             // Ajoute le produit
             $entityManager = $this->getDoctrine()->getManager();
 

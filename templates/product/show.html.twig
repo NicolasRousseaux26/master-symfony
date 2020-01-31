@@ -5,6 +5,7 @@
     <h1>{{ product.name }}</h1>
     <p>{{ product.description }}</p>
     <h2>{{ product.price / 100 }} €</p>
+    <p>Vendeur: {{ product.user.username }}</p>
     
 
 {% endblock %}
