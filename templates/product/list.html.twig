@@ -9,8 +9,8 @@
             <div class="card-body">
                 <h5 class="card-title">{{ product.name }}</h5>
                 <p class="card-text">Description: {{ product.description }}</p>
-                <p class="card-text">Prix: {{ product.price / 100 }}</p>
-                <a href="{{ path('product_show', { id: product.id }) }}" class="btn btn-secondary d-flex justify-content-center mb-2">Voir le produit</a>
+                <p class="card-text">Prix: {{ product.price / 100 }}€</p>
+                <a href="{{ path('product_show', { slug: product.slug }) }}" class="btn btn-secondary d-flex justify-content-center mb-2">Voir le produit</a>
                 <a href="{{ path('product_udapte', { id: product.id }) }}" class="btn btn-success ml-4">Modifier</a>
                 <!--<a href="{{ path('product_deleted', { id: product.id }) }}" class="btn btn-warning">supprimer</a>-->
                 <form action="{{ path('product_deleted', { id: product.id }) }}" method="post" class="d-inline">

@@ -102,25 +102,24 @@ class ProductController extends AbstractController
 
 
     /**
-    * @Route("/product/{id}", name="product_show")
+    * @Route("/product/{slug}", name="product_show")
     */
 
-    public function show($id)
+    public function show($slug)
     {
-        dump($id);
+        dump($slug);
         // on recupére le depot qui contient nos produit
         $productRepository = $this->getDoctrine()->getRepository(Product::class);
         // SELECT * FROM product WHERE id = $id
-        $product = $productRepository->find($id);
+        $product = $productRepository->findOneBy(['slug' => $slug]);
+                                    //findOnBySlug($slug);      effectue la méme chose mais pas ecrit de la méme façon 
 
         if (!$product) {
-        	throw $this->createNotFoundException('Le produit ' . $id . ' n\'existe pas.');
+        	throw $this->createNotFoundException('Le produit n\'existe pas.');
         }
 
         return $this->render('product/show.html.twig', [
             'product' => $product,
         ]);
-    }
-
-    
+    }    
 }
