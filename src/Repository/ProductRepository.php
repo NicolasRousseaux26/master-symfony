@@ -54,6 +54,17 @@ class ProductRepository extends ServiceEntityRepository
         return $queryBuilder->setMaxResults(1)->getOneOrNullResult();
     }
 
+    public function findAll() // ou findAllWithUser() sa evit de surchargé la requete
+    {
+        $queryBuilder = $this->createQueryBuilder('p')
+        // On peut aussi faire un innerJoin()
+        ->leftJoin('p.user', 'u')
+        ->addSelect('u')
+        ->getQuery();
+
+        return $queryBuilder->execute();
+    }
+
 
 
 
