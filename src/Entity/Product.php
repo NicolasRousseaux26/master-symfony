@@ -5,7 +5,6 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
@@ -20,23 +19,22 @@ class Product
 
     /**
      * @ORM\Column(type="string", length=255)
-     * 
+     *
      * @Assert\NotBlank
-     * @Assert\Length(min=3)
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
-     * 
+     *
      * @Assert\NotBlank
-     * @Assert\Length(min=10)
+     * @Assert\Length(min=5)
      */
     private $description;
 
     /**
      * @ORM\Column(type="integer")
-     * 
+     *
      * @Assert\NotBlank
      * @Assert\Positive
      */
@@ -53,7 +51,11 @@ class Product
      */
     private $user;
 
-    
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="products")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $category;
 
     public function getId(): ?int
     {
@@ -120,4 +122,15 @@ class Product
         return $this;
     }
 
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    }
 }
