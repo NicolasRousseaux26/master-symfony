@@ -20,7 +20,11 @@ class ProductType extends AbstractType
                 'divisor' => 100,
             ])  
             ->add('category')
-            ->add('user')          
+            ->add('user') 
+            ->add('tags', null, [
+                'choice_label' => 'name',
+                'expanded' => true
+            ])         
         ;
     }
 
