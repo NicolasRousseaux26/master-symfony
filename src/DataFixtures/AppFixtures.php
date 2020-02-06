@@ -7,7 +7,8 @@ use App\Entity\Product;
 use App\Entity\Tag;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AppFixtures extends Fixture
@@ -17,16 +18,24 @@ class AppFixtures extends Fixture
      */
     private $slugger;
 
-    public function __construct(SluggerInterface $slugger)
-    {
+    /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $passwordEncoder;
+
+    public function __construct(
+        SluggerInterface $slugger,
+        UserPasswordEncoderInterface $passwordEncoder
+    ) {
         $this->slugger = $slugger;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     public function load(ObjectManager $manager)
     {
         $faker = \Faker\Factory::create('fr_FR');
 
-        // Crée les tags
+        // Créer les tags
         for ($i = 1; $i <= 10; ++$i) {
             $tag = new Tag();
             $tag->setName('Tag '.$i);
@@ -47,8 +56,15 @@ class AppFixtures extends Fixture
         // Créer les utilisateurs
         $users = []; // Le tableau va nous aider à stocker les instances des users
         for ($i = 1; $i <= 10; ++$i) {
+            $email = (1 === $i) ? 'matthieu@boxydev.com' : $faker->email;
+            $roles = (1 === $i) ? ['ROLE_ADMIN'] : ['ROLE_USER'];
+
             $user = new User();
-            $user->setUsername($faker->email);
+            $user->setUsername($email);
+            $user->setPassword(
+                $this->passwordEncoder->encodePassword($user, 'test')
+            );
+            $user->setRoles($roles);
             $manager->persist($user);
             $users[] = $user;
         }

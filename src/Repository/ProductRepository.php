@@ -23,7 +23,7 @@ class ProductRepository extends ServiceEntityRepository
     /**
      * Permet de recupéré les produits plus chére qu'un certain montant
      */
-    public function findAllGreatherThanPrice($price): array
+    public function findAllGreaterThanPrice($price): array
     {
         // SELECT * FROM product WHERE price > 500
 
@@ -60,6 +60,7 @@ class ProductRepository extends ServiceEntityRepository
         // On peut aussi faire un innerJoin()
         ->leftJoin('p.user', 'u')
         ->addSelect('u')
+        ->orderBy('p.id','DESC')
         ->getQuery();
 
         return $queryBuilder->execute();

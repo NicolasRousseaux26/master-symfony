@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Form\ProductType;
+use App\Repository\ProductRepository;
+use App\Service\Uploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -13,116 +16,133 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class ProductController extends AbstractController
 {
     /**
-     * @Route("/product", name="product_create")
+     * @Route("/product/create", name="product_create")
      */
-    public function create(Request $request, SluggerInterface $slugger)
+    public function create(Request $request, SluggerInterface $slugger, Uploader $uploader)
     {
+        $this->denyAccessUnlessGranted('ROLE_USER');
         $product = new Product();
-        // on crée un formulaire avec 2 paramétre la class et l'objet a la db
+        // On crée un formulaire avec deux paramètres: la classe du formulaire et l'objet à ajouter dans la BDD
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // je génére le slug a la création de produit
+            // Je génère le slug à la création du produit
             $product->setSlug($slugger->slug($product->getName())->lower());
-            // Ajoute le produit
+
+            // quand un vendeur crée un produit on l'associe
+            if (!$product->getUser()) {
+                $product->setUser($this->getUser());
+            }
+
+            // Ajouter le produit en BDD...
             $entityManager = $this->getDoctrine()->getManager();
-
-            // On demande à Doctrine de mettre l'objet en attente
+            // On met l'objet en attente
             $entityManager->persist($product);
-
-            // Exécute la(es) requête(s) (INSERT...)
+            // Exécute la requête (INSERT...)
             $entityManager->flush();
-            
+
             $this->addFlash('success', 'Le produit a bien été ajouté.');
         }
-        
+
         return $this->render('product/create.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
     /**
-    * @Route("/product/all", name="product_list")
-    */
-
-    public function list()
-    {
-        // on recupére le depot qui contient nos produit
-        $productRepository = $this->getDoctrine()->getRepository(Product::class);
-        // SELECT * FROM product
-        $product = $productRepository->findAll();
-
-        if (!$product) {
-        	throw $this->createNotFoundException('Il n\'y a pas de produit enregistré');
-        }
-
-        return $this->render('product/list.html.twig', [
-            'products' => $product,
-        ]);
-    }
-
-    /**
-    * @Route("/product/udapte/{id}", name="product_udapte")
-    */
-    public function udapte(Request $request, Product $product)
-    {
-        // on crée le formulaire
-        $form = $this->createForm(ProductType::class, $product);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('product_list');
-
-            $this->addFlash('success', 'Le produit a bien été modifier.');
-
-        }
-
-        return $this->render('product/udapte.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/product/delete/{id}", name="product_deleted", methods={"POST"})
+     * @Route("/product/{slug}", name="product_show")
      */
-    public function deleted(Request $request, Product $product, EntityManagerInterface $entityManager)
-    {
-        // on verifie la validité du token CSRF On se protége des faille CSRF
-        if ($this->isCsrfTokenValid('delete', $request->get('token'))) {
-        $entityManager->remove($product);
-        $entityManager->flush();
-        }
-
-        $this->addFlash('success', 'Le produit a bien été supprimer.');
-
-        return $this->redirectToRoute('product_list');
-    }
-
-
-    /**
-    * @Route("/product/{slug}", name="product_show")
-    */
-
     public function show($slug)
     {
-        dump($slug);
-        // on recupére le depot qui contient nos produit
+        // On récupère le dépôt qui contient nos produits
         $productRepository = $this->getDoctrine()->getRepository(Product::class);
-        // SELECT * FROM product WHERE id = $id
-        $product = $productRepository->findOneBy(['slug' => $slug]);
-                                    //findOnBySlug($slug);      effectue la méme chose mais pas ecrit de la méme façon 
+        // SELECT * FROM product WHERE slug = $slug
+        // $productRepository->findOneBy(['slug' => $slug]);
+        /** @var Product $product */
+        $product = $productRepository->findOneBy($slug);
+        // User
+        // dump($product->getUser()->getUsername());
 
+        // Si le produit n'existe pas en BDD
         if (!$product) {
-        	throw $this->createNotFoundException('Le produit n\'existe pas.');
+            throw $this->createNotFoundException('Le produit n\'existe pas.');
         }
 
         return $this->render('product/show.html.twig', [
             'product' => $product,
         ]);
-    }    
+    }
+
+    /**
+     * @Route("/product", name="product_list")
+     */
+    public function list(ProductRepository $productRepository)
+    {
+        $products = $productRepository->findAll();
+
+        return $this->render('product/list.html.twig', [
+            'products' => $products,
+        ]);
+    }
+
+    /**
+     * @Route("/product/edit/{id}", name="product_edit")
+     */
+    public function edit(Request $request, Product $product, Uploader $uploader)
+    {
+        // Du code...
+        $this->denyAccessUnlessGranted('edit', $product);
+
+        // On crée le formulaire avec le produit à modifier
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+
+            // on fait l'upload...
+            if ($image = $form->get('image')->getData()) {
+
+                //supprimer l'image
+                if ($product->getImage()) {
+                $uploader->remove($product->getImage());
+                }
+
+                // on fait l'upload...
+                $fileName = $uploader->upload($image);
+                // met a jour l'entité
+                $product->setImage($fileName);
+            }
+
+            // Met à jour l'objet dans la BDD
+            $this->getDoctrine()->getManager()->flush();
+
+            // Redirige vers la liste des produits après l'UPDATE
+            return $this->redirectToRoute('product_list');
+        }
+
+        return $this->render('product/edit.html.twig', [
+           'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/product/delete/{id}", name="product_delete", methods={"POST"})
+     */
+    public function delete(Request $request, Product $product, EntityManagerInterface $entityManager, Uploader $uploader)
+    {
+        $this->denyAccessUnlessGranted('remove', $product);
+        // On vérifie la validité du token CSRF
+        // On se protège d'une faille CSRF
+        if ($this->isCsrfTokenValid('delete', $request->get('token'))) {
+            if ($product->getImage()){
+                $uploader->remove($product->getImage());
+            }
+            $entityManager->remove($product);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('product_list');
+    }
 }

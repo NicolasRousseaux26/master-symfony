@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TagsInputType extends AbstractType
 {
@@ -22,7 +23,7 @@ class TagsInputType extends AbstractType
     }
 
     public function buildForm(\Symfony\Component\Form\FormBuilderInterface $builder, array $options)
-    {        
+    {
 
         $builder
             //transforme une collection doctrine en tableau
@@ -33,6 +34,16 @@ class TagsInputType extends AbstractType
                 new TagsArrayToStringTransformer($this->tagRepository),
                 true
         );
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'attr' => [
+                'data-role' => 'tagsinput',
+            ],
+        ]);
+        
     }
 
     public function getParent()

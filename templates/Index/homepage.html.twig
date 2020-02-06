@@ -1,35 +1,40 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1 class="text-center">Bienvenue sur mon site</h1>
+    <h1>Bienvenue sur mon site</h1>
 
-    <h2> Nos produits les plus vendus</h2>
+    <h2>Nos produits les plus vendus :</h2>
 
-    <div class="row d-flex justify-content-between mt-5">
-    {% for product in products %}
-
-        <div class=" card col-md-3 ml-2 mr-2 mt-2 " style="width: 18rem;">
-            <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title">{{ product.name }}</h5>
-                <p class="card-text">Description: {{ product.description }}</p>
-                <p class="card-text">Prix: {{ product.price / 100 }}€</p>
-                <a href="{{ path('product_show', {slug: favorite_product.slug}) }}"class="btn btn-primary">voir</a> 
+    <div class="row">
+        {% for product in products %}
+            <div class="col-lg-3">
+                <div class="card mt-3 shadow">
+                    <div class="card-body">
+                        <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p>{{ product.description }}</p>
+                        <p><strong>{{ product.price / 100 }} €</strong></p>
+                        <a href="{{ path('product_show', { slug: product.slug }) }}"
+                           class="btn btn-primary"
+                        >Voir</a>
+                    </div>
+                </div>
             </div>
-        </div>
-
-    {% endfor %}
+        {% endfor %}
     </div>
 
-    <h2>Produit favori :</h2>
-    <div class=" card col-md-3 ml-2 mr-2 mt-2 " style="width: 18rem;">
+    {% if favorite_product %}
+    <h2 class="mt-5 text-center">Produit favori :</h2>
+    <div class="card shadow mb-5 w-50 mx-auto">
+        <div class="card-body text-center">
             <img class="card-img-top" src="https://images.frandroid.com/wp-content/uploads/2019/08/iphone-11-pro-2019-frandroid.png" alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title">{{ favorite_product.name }}</h5>
-                <p class="card-text">Description: {{ favorite_product.description }}</p>
-                <p class="card-text">Prix: {{ favorite_product.price /100 }}€</p>
-                <a href="{{ path('product_show', {slug: favorite_product.slug}) }}"class="btn btn-primary">voir</a>                        
-            </div>
+            <h5>{{ favorite_product.name }}</h5>
+            <p><strong>{{ favorite_product.price / 100 }} €</strong></p>
+            <a href="{{ path('product_show', { slug: favorite_product.slug }) }}"
+               class="btn btn-primary"
+            >Voir</a>
         </div>
-
+    </div>
+    {% endif %}
 {% endblock %}
+

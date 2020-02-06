@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/layout.html.twig' %}
 
 {% block title %}Category{% endblock %}
 
@@ -25,6 +25,14 @@
             </tr>
         </tbody>
     </table>
+
+    <div class="row">
+        {% for product in category.products %}
+            <div class="col-lg-4">
+                <h2>{{ product.name }}</h2>
+            </div>
+        {% endfor %}
+    </div>
 
     <a href="{{ path('category_index') }}">back to list</a>
 
